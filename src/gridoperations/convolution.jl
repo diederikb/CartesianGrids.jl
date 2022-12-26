@@ -48,8 +48,16 @@ function Base.show(io::IO, c::CircularConvolution{M, N, T}) where {M, N, T}
     print(io, "Circular convolution on a $M × $N matrix of data type $T")
 end
 
-function CircularConvolution(G::AbstractMatrix{T},fftw_flags = FFTW.ESTIMATE; dtype = Float64, nthreads = length(Sys.cpu_info())) where {T}
+function CircularConvolution(G::AbstractMatrix{T},fftw_flags = FFTW.MEASURE; dtype = Float64, nthreads = Threads.nthreads()) where {T}
+    nthreads = parse(Int,ENV["FFTW_NUM_THREADS"]) # force number of threads here for testing
+    println("set number of fftw threads to $(nthreads)")
     FFTW.set_num_threads(nthreads)
+    
+    println("fftw provider = $(FFTW.get_provider())")
+    
+    #fftw_flags = FFTW.ESTIMATE
+
+    println("fftw flags = $(fftw_flags)")
 
     M, N = size(G)
     #paddedSpace = Matrix{Float64}(undef, 2M-1, 2N-1)
